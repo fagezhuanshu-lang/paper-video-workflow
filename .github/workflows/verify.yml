@@ -1,0 +1,27 @@
+name: Verify public workflow
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  windows-demo:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: ./Setup.ps1
+      - run: node cli.mjs doctor
+      - run: npm test
+      - run: node cli.mjs demo --out .work/ci-demo
+      - uses: actions/upload-artifact@v4
+        with:
+          name: synthetic-demo-and-checks
+          path: |
+            .work/ci-demo/delivery/final.mp4
+            .work/ci-demo/delivery/cover/*.jpg
+            .work/ci-demo/delivery/verification.json
+            .work/ci-demo/delivery/delivery.json
+          retention-days: 7

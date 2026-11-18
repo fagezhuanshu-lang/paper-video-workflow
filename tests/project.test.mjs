@@ -1,0 +1,18 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import {validatePlan,makeSrt} from '../src/project.mjs';
+const plan=()=>({version:1,source:{video:'source.mp4',start:10,end:16},output:{width:720,height:1280,fps:30},theme:'paper',captions:[{start:.1,end:2.8,text:'免费版有额度'},{start:3,end:5.9,text:'超过额度才收费'}],scenes:[{start:0,end:3,kind:'title',title:'免费有边界'},{start:3,end:6,kind:'quote',title:'先看配额'}],music:null,cover:{titleLines:['免费有额度','使用先看配额'],kicker:'使用说明',deck:'超过额度才收费',visual:{kind:'claim',label:'收费条件',labels:['超过额度']},themeSummary:'免费额度与收费边界',evidence:['超过额度才收费']}});
+test('normal plan preserves selected interval duration and frame count',()=>assert.deepEqual(validatePlan(plan()),{duration:6,frames:180,sceneCount:2,captionCount:2}));
+test('overlapping captions are rejected rather than silently retimed',()=>{const p=plan();p.captions[1].start=2.5;assert.throws(()=>validatePlan(p),/overlapping/);});
+test('a visual gap cannot silently remove narration',()=>{const p=plan();p.scenes[1].start=3.3;assert.throws(()=>validatePlan(p),/gap/);});
+test('unsupported cover promises need actual narration evidence',()=>{const p=plan();p.cover.evidence=['所有功能永久免费'];assert.throws(()=>validatePlan(p),/evidence/);});
+test('cover photo uses original-source time, not output time',()=>{const p=plan();p.cover.photoTime=2;assert.throws(()=>validatePlan(p),/photoTime/);p.cover.photoTime=12;assert.equal(validatePlan(p).frames,180);});
+test('music cannot omit source and license',()=>{const p=plan();p.music={file:'song.mp3'};assert.throws(()=>validatePlan(p),/license/);});
+test('missing cover kicker is caught during plan validation',()=>{const p=plan();delete p.cover.kicker;assert.throws(()=>validatePlan(p),/cover\.kicker/);});
+test('unknown cover visual kind is caught before rendering',()=>{const p=plan();p.cover.visual.kind='unknown';assert.throws(()=>validatePlan(p),/cover\.visual\.kind/);});
+test('cover evidence consistently requires strings rather than quote objects',()=>{const p=plan();p.cover.evidence=[{quote:'超过额度才收费'}];assert.throws(()=>validatePlan(p),/cover\.evidence/);});
+test('three scene items fit the supported limit and a fourth is rejected',()=>{const p=plan();p.scenes[0].items=['甲','乙','丙'];assert.equal(validatePlan(p).frames,180);p.scenes[0].items.push('丁');assert.throws(()=>validatePlan(p),/at most three/);});
+test('comparison scenes require exactly two supported items',()=>{const p=plan();p.scenes[0].kind='compare';p.scenes[0].items=['甲','乙'];assert.equal(validatePlan(p).frames,180);p.scenes[0].items.push('丙');assert.throws(()=>validatePlan(p),/exactly two/);});
+test('the published contract project passes the same plan validation',()=>{const contract=JSON.parse(fs.readFileSync(new URL('../CONTRACT.json',import.meta.url),'utf8'));assert.deepEqual(validatePlan(contract.project),{duration:8,frames:240,sceneCount:2,captionCount:2});});
+test('SRT milliseconds carry cleanly at rounding boundaries',()=>{const s=makeSrt([{start:59.9996,end:61.05,text:'完整原句'}]);assert.match(s,/00:01:00,000 --> 00:01:01,050/);assert.match(s,/完整原句/);});

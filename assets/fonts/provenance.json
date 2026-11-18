@@ -1,0 +1,9 @@
+{
+  "name": "Noto Sans SC",
+  "license": "SIL Open Font License 1.1",
+  "licenseFile": "OFL.txt",
+  "source": "Unmodified NotoSansSC.ttf and corresponding OFL notice distributed with the MIT kinetic-tech 0.2.7-open-beta template; only the separately OFL-licensed font is reused here.",
+  "upstreamProject": "https://github.com/notofonts/noto-cjk",
+  "modified": false,
+  "note": "Font license is separate from the repository's MIT code license. No operating-system font is redistributed."
+}

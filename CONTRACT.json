@@ -1,0 +1,22 @@
+{
+  "internal": "Interface agreement for the original open renderer; not an upstream MotionGit contract",
+  "project": {
+    "version": 1,
+    "source": {"video": "source.mp4", "start": 0, "end": 8},
+    "output": {"width": 720, "height": 1280, "fps": 30},
+    "theme": "paper",
+    "captions": [{"start": 0.1, "end": 3.5, "text": "这是公开流程的合成测试"}, {"start": 4, "end": 7.8, "text": "视频与封面一起交付"}],
+    "scenes": [{"start": 0, "end": 4, "kind": "title", "title": "公开流程测试", "items": [], "cues": []}, {"start": 4, "end": 8, "kind": "quote", "title": "一起交付", "items": ["视频与封面"], "cues": [4]}],
+    "music": {"file": "music.wav", "gainDb": -22, "license": "user-provided", "source": "user-supplied"},
+    "sfx": {"enabled": true, "gainDb": -32},
+    "cover": {"titleLines": ["视频与封面", "一起交付"], "kicker": "合成结构示例", "deck": "公开流程的交付内容", "visual": {"kind": "claim", "label": "交付内容", "labels": ["视频与封面"]}, "photoTime": 2, "themeSummary": "以合成内容展示视频与封面共同交付", "evidence": ["视频与封面一起交付"]},
+    "review": {"transcriptChecked": false, "semanticPlanChecked": false, "coverSelectionChecked": false}
+  },
+  "timebase": "captions and scenes use output seconds; photoTime uses original-source seconds",
+  "duration": "source.end-source.start; frames round(duration*fps); only one continuous selected interval",
+  "runtime": "getRuntime() returns ffmpeg/ffprobe/fontPath and ffmpegPath/ffprobePath aliases; run(executable,args,options) returns Promise of stdout/stderr",
+  "render": "renderProject(project,{workDir,outputPath,coverPath,onProgress}) -> object",
+  "cover": "renderCovers(project,{workDir,onProgress}) -> {portraitPng,portraitJpg,socialPng,socialJpg,report}",
+  "verify": "verifyVideo(file,{expectedFrames,expectedFps,width,height,expectedDuration,requireAudio}) -> object with passed and checks",
+  "demo": "generated synthetic test source/tone; not real speech or automatic ASR"
+}

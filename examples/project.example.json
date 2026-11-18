@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "source": {"video": "source.mp4", "start": 0, "end": 6},
+  "output": {"width": 720, "height": 1280, "fps": 30},
+  "theme": "paper",
+  "captions": [
+    {"start": 0.1, "end": 2.8, "text": "这是公开流程的合成测试"},
+    {"start": 3, "end": 5.9, "text": "画面、音乐和封面一起交付"}
+  ],
+  "scenes": [
+    {"start": 0, "end": 3, "kind": "title", "title": "从素材到成片", "items": []},
+    {"start": 3, "end": 6, "kind": "steps", "title": "一起交付", "items": ["视频", "配乐", "封面"], "cues": [3, 4, 5]}
+  ],
+  "music": {"file": "music.wav", "gainDb": -25, "license": "REPLACE_WITH_REAL_PERMISSION", "source": "REPLACE_WITH_REAL_SOURCE"},
+  "sfx": {"enabled": true, "gainDb": -32},
+  "cover": {
+    "titleLines": ["视频与封面", "一次交付"],
+    "kicker": "公开流程 · 结构示例",
+    "deck": "画面、音乐和封面一起交付",
+    "visual": {"kind": "process", "label": "固定交付步骤", "labels": ["整理素材", "生成成片", "交付封面"]},
+    "themeSummary": "演示计划结构；新视频必须换成实际文案",
+    "evidence": ["画面、音乐和封面一起交付"]
+  },
+  "review": {"transcriptChecked": false, "semanticPlanChecked": false, "coverSelectionChecked": false}
+}

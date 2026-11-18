@@ -1,0 +1,6 @@
+{
+  "packagePath": "./your-personal-template.motion",
+  "packageSha256": "REPLACE_WITH_VERIFIED_PERSONAL_PACKAGE_SHA256",
+  "helperPath": "./verified-official-helper/assistant/motion.mjs",
+  "helperSha256": "REPLACE_WITH_OFFICIALLY_VERIFIED_HELPER_SHA256"
+}
