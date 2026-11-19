@@ -1,6 +1,6 @@
 {
-  "version": "2.0.0",
-  "recordedAt": "2026-11-18T07:58:30.815Z",
+  "version": "2.1.0",
+  "recordedDate": "2026-11-19",
   "engine": "original-open-paper",
   "localEnvironment": {
     "platform": "Windows x64",
@@ -9,13 +9,10 @@
     "font": "Bundled Noto Sans SC / OFL"
   },
   "unitTests": {
-    "passed": 13,
+    "passed": 21,
     "failed": 0,
-    "command": "node --test tests/*.test.mjs"
-  },
-  "skillFormat": {
-    "passed": true,
-    "validator": "skill-creator quick_validate.py"
+    "command": "node --test tests/*.test.mjs",
+    "scope": "Plan validation, presenter interpolation and native finish gates/copy preservation with synthetic fixtures; not an end-to-end official template run"
   },
   "syntheticDemo": {
     "passed": true,
@@ -41,7 +38,23 @@
       "integratedLoudness": true,
       "truePeak": true
     },
-    "input": "Generated 6-second color test and tones; no real person or speech"
+    "input": "Generated stationary test card and test tones; no real person or speech"
+  },
+  "encodedPresenterMotion": {
+    "passed": true,
+    "command": "node scripts/check-demo-motion.mjs DEMO_DELIVERY/final.mp4",
+    "sampleCount": 13,
+    "measurementResolution": [
+      360,
+      640
+    ],
+    "markerVerticalDisplacementPixels": 49,
+    "markerWidthsPixels": [
+      20,
+      12
+    ],
+    "intermediateStatesDetected": true,
+    "scope": "Measures the encoded stationary marker rather than movement within a presenter source video"
   },
   "realMediaIntegration": {
     "passed": true,
@@ -67,46 +80,42 @@
       "integratedLoudness": true,
       "truePeak": true
     },
-    "input": "Private user-supplied portrait sample; media and content are excluded from this repository",
-    "captionCount": 12,
-    "sceneCount": 5,
-    "coverSizes": [
-      [
-        1080,
-        1920
-      ],
-      [
-        1080,
-        1440
-      ]
+    "input": "Private portrait sample; all source media and identifying content excluded from this repository",
+    "stablePresenterWindowMeasurements": [
+      {
+        "outputSecond": 2.4,
+        "referenceInnerSize": [
+          588,
+          748
+        ],
+        "revisedInnerSize": [
+          588,
+          749
+        ]
+      },
+      {
+        "outputSecond": 5,
+        "referenceInnerSize": [
+          408,
+          408
+        ],
+        "revisedInnerSize": [
+          408,
+          408
+        ]
+      }
     ],
-    "visualSampling": {
-      "performed": true,
-      "sampledFrameCount": 10,
-      "fullSizeCoversAndThumbnailsViewed": true,
-      "findings": "No visible text overflow, face obstruction or black frame in sampled frames; the first frame is the theme cover.",
-      "scope": "Sampled picture/cover review; not a full-motion playback review."
-    },
+    "measurementLimit": "Approximate photographic inner bounds from thresholded encoded frames, excluding frame/shadow. Intermediate animation, text, effects and materials differ from MotionGit; no pixel-identical claim.",
+    "sampledVisualReviewPreviouslyRecorded": true,
+    "fullMotionPlaybackWatched": false,
     "humanListeningPerformed": false,
     "ownerArtisticApproval": false
   },
-  "optionalTranscription": {
-    "passed": true,
-    "python": "3.12.14",
-    "fasterWhisper": "1.2.1",
-    "pyAv": "18.1.0",
-    "model": "base",
-    "device": "cpu",
-    "computeType": "int8",
-    "inputDurationSeconds": 8,
-    "segmentCount": 4,
-    "modelOrigin": "Pre-existing local model cache",
-    "firstNetworkModelDownloadTested": false,
-    "reviewedTranscriptContent": false
-  },
   "githubActions": {
     "workflow": "https://github.com/fagezhuanshu-lang/paper-video-workflow/actions/workflows/verify.yml",
-    "scope": "Fresh GitHub-hosted Windows runner: Setup.ps1, doctor, unit tests and synthetic demo. See the check attached to the exact commit for its result. This is separate from the local tests recorded above."
+    "version": "2.1.0",
+    "status": "pending-publication",
+    "scope": "Check the exact v2.1.0 commit result after publication. Includes Windows setup, doctor, unit tests, synthetic demo and encoded presenter-motion measurement."
   },
   "workBuddy": {
     "tested": false,
@@ -114,6 +123,131 @@
   },
   "motionGit": {
     "originalAnimationsIncluded": false,
-    "adapterRequires": "Each user supplies their own authorized package and official helper; the adapter does not turn the open renderer into MotionGit."
-  }
+    "adapterRequires": "Each user supplies their own authorized package and matching official helper; the adapter never falls back to the open renderer.",
+    "newStageWrapperEndToEndTested": false,
+    "nativeFinishSyntheticRegressionTested": true,
+    "officialSampleOrigin": "Previously rendered locally through an authorized official template; does not establish fresh-machine or WorkBuddy compatibility of the new stage wrapper.",
+    "firstFrameReplacedByFinish": false
+  },
+  "previousReleases": [
+    {
+      "version": "2.0.0",
+      "recordedAt": "2026-11-18T07:58:30.815Z",
+      "engine": "original-open-paper",
+      "localEnvironment": {
+        "platform": "Windows x64",
+        "node": "24.22.1",
+        "ffmpeg": "6.1.1 (ffmpeg-static 5.3.0)",
+        "font": "Bundled Noto Sans SC / OFL"
+      },
+      "unitTests": {
+        "passed": 13,
+        "failed": 0,
+        "command": "node --test tests/*.test.mjs"
+      },
+      "skillFormat": {
+        "passed": true,
+        "validator": "skill-creator quick_validate.py"
+      },
+      "syntheticDemo": {
+        "passed": true,
+        "width": 720,
+        "height": 1280,
+        "fps": 30,
+        "frames": 180,
+        "duration": 6,
+        "audioDuration": 6,
+        "integratedLoudnessLufs": -16.03,
+        "truePeakDbtp": -11.83,
+        "checks": {
+          "probe": true,
+          "video": true,
+          "audio": true,
+          "width": true,
+          "height": true,
+          "frames": true,
+          "fps": true,
+          "duration": true,
+          "audioDuration": true,
+          "completeDecode": true,
+          "integratedLoudness": true,
+          "truePeak": true
+        },
+        "input": "Generated 6-second color test and tones; no real person or speech"
+      },
+      "realMediaIntegration": {
+        "passed": true,
+        "width": 1080,
+        "height": 1920,
+        "fps": 30,
+        "frames": 617,
+        "duration": 20.566667,
+        "audioDuration": 20.566667,
+        "integratedLoudnessLufs": -16.28,
+        "truePeakDbtp": -1.46,
+        "checks": {
+          "probe": true,
+          "video": true,
+          "audio": true,
+          "width": true,
+          "height": true,
+          "frames": true,
+          "fps": true,
+          "duration": true,
+          "audioDuration": true,
+          "completeDecode": true,
+          "integratedLoudness": true,
+          "truePeak": true
+        },
+        "input": "Private user-supplied portrait sample; media and content are excluded from this repository",
+        "captionCount": 12,
+        "sceneCount": 5,
+        "coverSizes": [
+          [
+            1080,
+            1920
+          ],
+          [
+            1080,
+            1440
+          ]
+        ],
+        "visualSampling": {
+          "performed": true,
+          "sampledFrameCount": 10,
+          "fullSizeCoversAndThumbnailsViewed": true,
+          "findings": "No visible text overflow, face obstruction or black frame in sampled frames; the first frame is the theme cover.",
+          "scope": "Sampled picture/cover review; not a full-motion playback review."
+        },
+        "humanListeningPerformed": false,
+        "ownerArtisticApproval": false
+      },
+      "optionalTranscription": {
+        "passed": true,
+        "python": "3.12.14",
+        "fasterWhisper": "1.2.1",
+        "pyAv": "18.1.0",
+        "model": "base",
+        "device": "cpu",
+        "computeType": "int8",
+        "inputDurationSeconds": 8,
+        "segmentCount": 4,
+        "modelOrigin": "Pre-existing local model cache",
+        "firstNetworkModelDownloadTested": false,
+        "reviewedTranscriptContent": false
+      },
+      "githubActions": {
+        "workflow": "https://github.com/fagezhuanshu-lang/paper-video-workflow/actions/workflows/verify.yml",
+        "scope": "Fresh GitHub-hosted Windows runner: Setup.ps1, doctor, unit tests and synthetic demo. See the check attached to the exact commit for its result. This is separate from the local tests recorded above."
+      },
+      "workBuddy": {
+        "tested": false,
+        "note": "Host integration and model content decisions have not been tested in WorkBuddy."
+      },
+      "motionGit": {
+        "originalAnimationsIncluded": false,
+        "adapterRequires": "Each user supplies their own authorized package and official helper; the adapter does not turn the open renderer into MotionGit."
+      }
+    }
+  ]
 }

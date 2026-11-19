@@ -1,0 +1,16 @@
+{
+  "instance": "./native-instance-v1",
+  "inputs": "./native-instance-v1/inputs.json",
+  "params": "./native-instance-v1/params-v1.json",
+  "plan": "./native-instance-v1/plan-v1.json",
+  "project": "./native-instance-v1/project-v1",
+  "master": "./native-instance-v1/render/official-master-v1.mp4",
+  "delivery": "./native-delivery-v1",
+  "language": "zh",
+  "previewTimes": [0, 1, 2],
+  "coverProject": "./cover-project.local.json",
+  "review": {
+    "previewChecked": false,
+    "masterChecked": false
+  }
+}

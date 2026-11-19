@@ -4,7 +4,8 @@ import path from 'node:path';
 import {createCanvas, GlobalFonts, ImageData, loadImage} from '@napi-rs/canvas';
 import {getRuntime} from './runtime.mjs';
 import {startProcess, runProcess, assertProcess, readFixedFrames, parseLoudness} from './render-process.mjs';
-import {PERSON, validateLayout, paintFrame, sceneItems} from './render-layout.mjs';
+import {validateLayout, paintFrame, sceneItems} from './render-layout.mjs';
+import {buildPresenterTrack, presenterAt} from './presenter.mjs';
 
 function finite(value, label) {
   if (!Number.isFinite(value)) throw new Error(`${label} must be a finite number`);
@@ -153,14 +154,15 @@ export async function renderProject(project, {workDir, outputPath, coverPath, on
   const cover = await loadImage(coverPath);
   if (Math.abs(cover.width / cover.height - timing.width / timing.height) > 0.00001) throw new Error('Cover aspect ratio must match output; independent portrait cover may be proportionally downscaled');
   const scale = timing.width / 720;
-  const personWidth = Math.round(PERSON.width * scale);
-  const personHeight = Math.round(PERSON.height * scale);
+  const presenterTrack = buildPresenterTrack(project.scenes);
+  const personWidth = Math.round(392 * scale);
+  const personHeight = 2*Math.round(personWidth*sourceVideo.height/sourceVideo.width/2);
   const personCanvas = createCanvas(personWidth, personHeight);
   const personContext = personCanvas.getContext('2d');
   const picturePath = path.join(workDir, 'picture.mp4');
   const decoder = startProcess(runtime.ffmpeg, ['-hide_banner', '-v', 'error', '-nostdin', '-threads', '2', '-filter_threads', '1',
     '-ss', timing.start, '-i', project.source.video, '-an', '-sn', '-dn',
-    '-vf', `fps=${timing.fps},scale=${personWidth}:${personHeight}:force_original_aspect_ratio=decrease:flags=lanczos,pad=${personWidth}:${personHeight}:(ow-iw)/2:(oh-ih)/2:color=0xfcfcf7,setsar=1,format=rgba,tpad=stop_mode=clone:stop_duration=0.034`,
+    '-vf', `fps=${timing.fps},scale=${personWidth}:${personHeight}:flags=lanczos,setsar=1,format=rgba,tpad=stop_mode=clone:stop_duration=0.034`,
     '-frames:v', timing.frames, '-f', 'rawvideo', 'pipe:1']);
   const encoder = startProcess(runtime.ffmpeg, ['-hide_banner', '-v', 'error', '-nostdin', '-y', '-threads', '2', '-filter_threads', '1',
     '-f', 'rawvideo', '-pixel_format', 'rgba', '-video_size', `${timing.width}x${timing.height}`, '-framerate', timing.fps, '-i', 'pipe:0',
@@ -176,7 +178,7 @@ export async function renderProject(project, {workDir, outputPath, coverPath, on
       if (pipeError) throw pipeError;
       personContext.putImageData(new ImageData(new Uint8ClampedArray(frame.buffer, frame.byteOffset, frame.byteLength), personWidth, personHeight), 0, 0);
       if (count === 0) ctx.drawImage(cover, 0, 0, timing.width, timing.height);
-      else paintFrame(ctx, personCanvas, project, count / timing.fps);
+      else paintFrame(ctx, personCanvas, project, count / timing.fps, presenterAt(presenterTrack,count/timing.fps));
       const data = ctx.getImageData(0, 0, timing.width, timing.height).data;
       await new Promise((resolve, reject) => encoder.child.stdin.write(Buffer.from(data.buffer, data.byteOffset, data.byteLength), error => error ? reject(error) : resolve()));
       count++;
@@ -199,7 +201,7 @@ export async function renderProject(project, {workDir, outputPath, coverPath, on
     '-t', timing.duration, '-movie_timescale', '48000', '-movflags', '+faststart', partial]);
   await fsp.copyFile(partial, outputPath, fs.constants.COPYFILE_EXCL);
   onProgress({stage: 'mux', ratio: 1});
-  return {outputPath, ...timing, source: {video: project.source.video, start: timing.start, end: timing.end},
+  return {outputPath, presenterTrack, ...timing, source: {video: project.source.video, start: timing.start, end: timing.end},
     theme: 'original-paper', voice: audio.voicePath, audio: audio.normalizedPath,
     music: audio.music, sfx: audio.sfx, cover: {path: coverPath, outputFrame: 0, holdFrames: 1, audioShiftSeconds: 0},
     continuousSourceInterval: true, generatedWordTimings: false, humanListeningPerformed: false};

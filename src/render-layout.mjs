@@ -1,5 +1,5 @@
-const PALETTE = {paper: '#f3f0e5', ink: '#183f35', accent: '#287c61', muted: '#64776c', line: '#d4dbcd', white: '#fcfcf7'};
-export const PERSON = {x: 118, y: 456, width: 484, height: 602};
+import {drawPresenter} from './presenter.mjs';
+const PALETTE = {paper: '#f1f0e5', ink: '#17271d', accent: '#299963', muted: '#64776c', line: '#d4dbcd', white: '#fcfcf7'};
 const clamp = value => Math.min(1, Math.max(0, value));
 
 export function linesFor(ctx, text, maxWidth) {
@@ -61,28 +61,52 @@ export function validateLayout(project, ctx) {
   }
 }
 
-export function paintFrame(ctx, personCanvas, project, time) {
+export function paintFrame(ctx, personCanvas, project, time, presenterBox) {
   const scene = project.scenes.find(s => time >= s.start && time < s.end) ?? project.scenes.at(-1);
   const width = project.output.width;
   ctx.save();
   ctx.scale(width / 720, width / 720);
-  ctx.fillStyle = PALETTE.paper;
+  const paper=ctx.createLinearGradient(0,0,720,200);
+  paper.addColorStop(0,'#e9e8da'); paper.addColorStop(0.56,'#f4f3e9');
+  paper.addColorStop(0.57,'#eeede1'); paper.addColorStop(1,PALETTE.paper);
+  ctx.fillStyle = paper;
   ctx.fillRect(0, 0, 720, 1280);
-  // Geometric paper details are drawn here; no upstream assets or animations.
-  ctx.strokeStyle = '#e4e7dc'; ctx.lineWidth = 1;
-  for (let y = 30; y < 1280; y += 30) {
-    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(720, y); ctx.stroke();
-  }
-  ctx.fillStyle = PALETTE.accent;
-  ctx.fillRect(58, 72, 36, 5);
-  font(ctx, 17, 600); ctx.fillStyle = PALETTE.muted;
-  ctx.fillText('观点 · 讲解', 108, 82);
   const entrance = clamp((time - scene.start) / 0.28);
   const eased = 1 - (1 - entrance) ** 3;
   ctx.save(); ctx.globalAlpha = entrance; ctx.translate(0, (1 - eased) * 15);
-  textBlock(ctx, scene.title, 58, 151, 604, 51, 65, 2);
+  const prominent=scene.kind==='title'||scene.kind==='quote';
+  const titleSize=prominent && Array.from(scene.title).length<=9 ? 64 : 51;
+  textBlock(ctx, scene.title, 58, prominent?189:159, 604, titleSize, titleSize*1.12, 2);
   const items = sceneItems(scene);
-  if (scene.kind === 'compare') {
+  if (prominent && items.length===1 && Array.from(items[0].text).length<=17) {
+    const item=items[0], reveal=clamp((time-item.at)/0.26);
+    ctx.save(); ctx.globalAlpha*=reveal; ctx.translate(0,(1-reveal)*12);
+    textBlock(ctx,item.text,58,324,604,41,48,2,PALETTE.accent);
+    ctx.restore();
+  } else if (scene.kind === 'steps' && items.length && scene.presenter!=='large') {
+    // Reserve the full list immediately. Each spoken cue turns its blank
+    // sheet into a raised card without showing the next phrase prematurely.
+    items.forEach((item,index)=>{
+      const y=244+index*87;
+      const reveal=clamp((time-item.at)/0.26);
+      const dx=(1-reveal)*15;
+      ctx.save();
+      ctx.strokeStyle=reveal>0 ? PALETTE.accent : '#c5c8bd'; ctx.lineWidth=1.2;
+      ctx.beginPath(); ctx.arc(63,y+35,11,0,Math.PI*2); ctx.stroke();
+      ctx.translate(dx,0);
+      ctx.shadowColor=`rgba(34,44,32,${0.06+reveal*0.13})`;
+      ctx.shadowBlur=12; ctx.shadowOffsetY=4;
+      ctx.fillStyle=`rgba(255,254,243,${0.22+0.76*reveal})`;
+      ctx.fillRect(103,y,551,70);
+      ctx.shadowColor='transparent';ctx.globalAlpha*=reveal;
+      font(ctx,14,500);ctx.fillStyle=PALETTE.muted;ctx.fillText(String(index+1).padStart(2,'0'),116,y+39);
+      font(ctx,28);
+      const count=linesFor(ctx,item.text,485).length;
+      if(count<=2) textBlock(ctx,item.text,153,y+(count>1?29:45),485,28,31,2);
+      else textBlock(ctx,item.text,144,y+29,500,28,31,2);
+      ctx.restore();
+    });
+  } else if (scene.kind === 'compare') {
     items.forEach((item, index) => {
       const alpha = clamp((time - item.at) / 0.22);
       if (!alpha) return;
@@ -121,20 +145,16 @@ export function paintFrame(ctx, personCanvas, project, time) {
     ctx.beginPath(); ctx.moveTo(58, 299); ctx.lineTo(662, 299); ctx.stroke();
   }
   ctx.restore();
-  ctx.shadowColor = '#183f3520'; ctx.shadowBlur = 22; ctx.shadowOffsetY = 8;
-  roundedRect(ctx, PERSON.x - 8, PERSON.y - 8, PERSON.width + 16, PERSON.height + 16, 18);
-  ctx.fillStyle = PALETTE.white; ctx.fill();
-  ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
-  ctx.save(); roundedRect(ctx, PERSON.x, PERSON.y, PERSON.width, PERSON.height, 10); ctx.clip();
-  ctx.drawImage(personCanvas, PERSON.x, PERSON.y, PERSON.width, PERSON.height); ctx.restore();
+  drawPresenter(ctx,personCanvas,presenterBox,project.presenter);
   const caption = project.captions.find(c => time >= c.start && time < c.end);
   if (caption) {
     font(ctx, 34);
     const lines = linesFor(ctx, caption.text, 592);
     const boxHeight = lines.length * 44 + 26;
-    const boxY = 1100;
-    roundedRect(ctx, 44, boxY, 632, boxHeight, 15);
-    ctx.fillStyle = PALETTE.ink; ctx.fill();
+    const boxY = 986;
+    const boxWidth=Math.ceil(Math.max(...lines.map(line=>ctx.measureText(line).width)))+36;
+    roundedRect(ctx, (720-boxWidth)/2, boxY, boxWidth, boxHeight, 9);
+    ctx.fillStyle = 'rgba(49,47,44,0.77)'; ctx.fill();
     ctx.fillStyle = PALETTE.white; ctx.textAlign = 'center';
     lines.forEach((line, index) => ctx.fillText(line, 360, boxY + 44 + 44 * index));
     ctx.textAlign = 'left';

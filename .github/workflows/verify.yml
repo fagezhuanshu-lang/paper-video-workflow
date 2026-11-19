@@ -16,6 +16,8 @@ jobs:
       - run: node cli.mjs doctor
       - run: npm test
       - run: node cli.mjs demo --out .work/ci-demo
+      - name: Measure presenter motion in the encoded video
+        run: node scripts/check-demo-motion.mjs .work/ci-demo/delivery/final.mp4
       - uses: actions/upload-artifact@v4
         with:
           name: synthetic-demo-and-checks

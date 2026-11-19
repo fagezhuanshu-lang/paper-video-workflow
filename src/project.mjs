@@ -2,10 +2,12 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {probe} from './runtime.mjs';
 import {validateCover} from './cover-contract.mjs';
+import {validatePresenter} from './presenter.mjs';
 const fail=(message)=>{throw Error(message);};
 const num=(x,name)=>Number.isFinite(x)?x:fail(name+' must be a finite number');
 export function validatePlan(p){
  if(p.version!==1)fail('version must be 1');
+ if(p.engine!==undefined && p.engine!=='original-open-paper')fail('This build uses original-open-paper. For MotionGit native rendering follow docs/motiongit-native.md.');
  if(!p.source?.video)fail('source.video is required');
  const start=num(p.source.start??0,'source.start'),end=num(p.source.end,'source.end');
  if(start<0||end<=start)fail('source interval is invalid');
@@ -21,6 +23,7 @@ export function validatePlan(p){
   previous=c.end;
  }
  if(!Array.isArray(p.scenes)||!p.scenes.length)fail('scenes required');
+ validatePresenter(p);
  previous=0;
  for(const[s,i]of p.scenes.map((s,i)=>[s,i])){
   num(s.start,'scene.start');num(s.end,'scene.end');
